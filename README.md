@@ -7,6 +7,8 @@ Flippero is a Flipper Zero app that makes simple labels (text, QR codes, small i
 
 ![](https://raw.githubusercontent.com/wiki/ManeFunction/flippero/screenshot-1.png)&nbsp;&nbsp;![](https://raw.githubusercontent.com/wiki/ManeFunction/flippero/screenshot-2.png)&nbsp;&nbsp;![](https://raw.githubusercontent.com/wiki/ManeFunction/flippero/screenshot-3.png)
 
+![](https://raw.githubusercontent.com/wiki/ManeFunction/flippero/photo.jpeg)
+
 > **Beta (0.9).** Printing works (verified with direct BLE on the Flipper Blue++ firmware), but the ESP32 bridge
 > firmware has not been tested on hardware yet. See [Status](#status).
 >
