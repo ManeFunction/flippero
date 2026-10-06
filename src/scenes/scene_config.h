@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+ADD_SCENE(fichero, main_menu, MainMenu)
+ADD_SCENE(fichero, edit, Edit)
+ADD_SCENE(fichero, text_edit, TextEdit)
+ADD_SCENE(fichero, settings, Settings)
+ADD_SCENE(fichero, preview, Preview)
+ADD_SCENE(fichero, job, Job)
+ADD_SCENE(fichero, wiring, Wiring)
+ADD_SCENE(fichero, info, Info)

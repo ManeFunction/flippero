@@ -1,0 +1,18 @@
+sourcecode:
+  type: git
+  location:
+    origin: https://github.com/ManeFunction/flippero.git
+    commit_sha: 
+    subdir: src
+short_description: Design and print text, QR code and icon labels on a Fichero D11s label printer.
+description: "@docs/catalog_description.md"
+changelog: "@changelog.md"
+icon: icons/app_10x10.png
+screenshots:
+  - screenshots/screenshot_1.png
+  - screenshots/screenshot_2.png
+  - screenshots/screenshot_3.png
+name: Flippero
+id: flippero
+category: GPIO
+author: Ilia Petrov-Komotskii (Mane Function)

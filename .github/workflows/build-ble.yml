@@ -1,0 +1,76 @@
+name: Build BLE flavour
+
+# The direct-BLE build needs the SDK of the Flipper Blue++ firmware, which exists only as source: building
+# it means building that firmware (a few GB and a long compile). So the SDK is built once per pinned Blue++
+# commit and cached; later runs reuse it and only compile the app.
+#
+# Run by hand from the Actions tab to try it, or called by release.yml.
+
+on:
+  workflow_call:
+    outputs:
+      bluepp-commit:
+        description: Blue++ commit the app was built against
+        value: ${{ jobs.build-ble.outputs.bluepp-commit }}
+      api-version:
+        description: API version of the built app
+        value: ${{ jobs.build-ble.outputs.api-version }}
+  workflow_dispatch:
+
+env:
+  APP_DIR: src
+  BLUEPP_REPO: andydixon/flipper-bluepp
+  # The Blue++ commit whose firmware and SDK the app is built against (official firmware 1.4.3, API 87.2).
+  # The .fap only loads on firmware built from a compatible commit, so bump this on purpose.
+  BLUEPP_COMMIT: 61545f54d392cee2fa5c39a2bb6d739d94f4d971
+
+jobs:
+  build-ble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      bluepp-commit: ${{ env.BLUEPP_COMMIT }}
+      api-version: ${{ steps.build.outputs.api-version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Restore the Blue++ SDK from cache
+        id: sdk-cache
+        uses: actions/cache@v6
+        with:
+          path: bluepp-sdk
+          key: bluepp-sdk-${{ env.BLUEPP_COMMIT }}
+
+      # build.sh only builds (it flashes only when given the "flash" argument).
+      - name: Build the Blue++ SDK
+        if: steps.sdk-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone "https://github.com/${BLUEPP_REPO}.git" bluepp
+          git -C bluepp checkout "$BLUEPP_COMMIT"
+          (cd bluepp && JOBS=4 ./build.sh)
+          mkdir -p bluepp-sdk
+          cp bluepp/flipperzero-firmware/dist/f7-C/flipper-z-f7-sdk-*.zip bluepp-sdk/sdk.zip
+          rm -rf bluepp
+
+      - name: Build the app against the Blue++ SDK
+        id: build
+        env:
+          FICHERO_DIRECT_BLE: "1"
+        # Fork with Node 24 action versions (node24-actions branch), until upstream merges and tags it.
+        uses: ManeFunction/flipperzero-ufbt-action@19eba5a6c2c8fc7766fbcf7118aca5ef6125fd98
+        with:
+          app-dir: ${{ env.APP_DIR }}
+          sdk-file: ${{ github.workspace }}/bluepp-sdk/sdk.zip
+          sdk-hw-target: f7
+
+      # Same file name as the stock build, so give it its own.
+      - name: Name the artifact
+        run: |
+          mkdir out
+          cp "${{ env.APP_DIR }}/dist/flippero.fap" out/flippero-ble.fap
+          ls -l out
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: fap-ble
+          path: out/flippero-ble.fap

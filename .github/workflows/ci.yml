@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  APP_DIR: src
+
+jobs:
+  # Pure-C core (renderer, protocol, framing) under ASan/UBSan, plus the check that the ESP32
+  # firmware's framing is byte-for-byte compatible with the Flipper's.
+  host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: ${{ env.APP_DIR }}/tests/host/run.sh
+
+  # The flavour the Flipper Apps Catalog builds: official SDK, ESP32 bridge only.
+  fap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build with ufbt
+        # Fork with Node 24 action versions (node24-actions branch), until upstream merges and tags it.
+        uses: ManeFunction/flipperzero-ufbt-action@19eba5a6c2c8fc7766fbcf7118aca5ef6125fd98
+        with:
+          app-dir: ${{ env.APP_DIR }}
+          sdk-channel: release
+
+  # Compiles the ESP32 bridge firmware.
+  bridge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - run: python3 -m pip install platformio
+      - run: pio run -d bridge -e xiao_esp32c3

@@ -1,0 +1,27 @@
+# Two flavours of the same app:
+#   ufbt                       -> ESP32 bridge only; builds against the official SDK and runs on
+#                                 any firmware. This is what the Flipper Apps Catalog builds.
+#   FICHERO_DIRECT_BLE=1 ufbt  -> adds direct BLE; needs the Flipper Blue++ firmware and the
+#                                 SDK built from it (see the README). libble is GPL-3.0-or-later.
+import os
+
+_direct_ble = os.environ.get("FICHERO_DIRECT_BLE") == "1"
+
+App(
+    appid="flippero",
+    name="Flippero",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="flippero_app",
+    stack_size=4 * 1024,
+    requires=["gui", "storage", "notification"],
+    # "*.c" recurses into scenes/, ui/, core/ and third_party/
+    sources=["*.c", "!tests/*"] + ([] if _direct_ble else ["!ble_central.c", "!ble_link.c"]),
+    cdefines=["FICHERO_DIRECT_BLE"] if _direct_ble else [],
+    fap_icon="icons/app_10x10.png",
+    fap_icon_assets="images",
+    fap_category="GPIO",
+    fap_author="Ilia Petrov-Komotskii (Mane Function)",
+    fap_weburl="https://github.com/ManeFunction/flippero",
+    fap_version="0.9",
+    fap_description="Design and print text, QR code and icon labels on a Fichero D11s thermal label printer.",
+)
