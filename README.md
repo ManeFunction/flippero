@@ -181,13 +181,13 @@ ufbt              # ESP32-bridge build, official SDK -> dist/flippero.fap
 ufbt launch       # build, install and run on a connected Flipper
 ```
 
-Or connect the Flipper and run `./src/launch_app.sh`.
+Or connect the Flipper and run `src/launch_app.sh`.
 
 Host tests for the pure-C core (renderer, protocol, framing, and a check that the ESP32 firmware's framing matches
 the Flipper's), under ASan/UBSan:
 
 ```sh
-./src/tests/host/run.sh        # add -v to dump rendered labels as ASCII
+src/tests/host/run.sh        # add -v to dump rendered labels as ASCII
 ```
 
 ## Project layout
